@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="hu">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<link rel="shortcut icon" href="favicon.ico" />
+		<meta name="theme-color" content="#000000" />
+		<link rel="apple-touch-icon" href="logo192.png" />
+		<link rel="manifest" href="manifest.json" />
+		<title>Idő</title>
+		<style>
+			html {
+				background-color: #cde;
+				font-family: sans-serif;
+				font-size: 4vmin;
+			}
+
+			body {
+				padding: 4vmin;
+				text-align: center;
+			}
+
+			input,
+			button {
+				font-size: 1rem;
+				border-radius: 4vmin;
+				border: 0.2vmin solid #678;
+				text-align: center;
+				padding: 1vmin 2vmin;
+			}
+
+			input {
+				background: linear-gradient(to bottom, #def 0%, #fff 50%);
+				width: 10vmin;
+			}
+
+			input:invalid {
+				border-color: #bf0000;
+				background: linear-gradient(to bottom, #ffdddd 0%, #fff 50%);
+			}
+
+			input:invalid:focus {
+				border-color: #830000;
+			}
+
+			input:focus,
+			button:focus {
+				outline: 0;
+				border-color: #004ba1;
+			}
+
+			button {
+				background-color: #ffffff7e;
+				box-shadow: inset 0.4vmin 0.4vmin 0.4vmin 0 white;
+			}
+
+			button:hover,
+			button:focus {
+				background-color: #ffffffc7;
+			}
+
+			button:active {
+				background-color: #0000007e;
+				box-shadow: inset -0.4vmin -0.4vmin 0.4vmin 0 white;
+			}
+		</style>
+	</head>
+	<body>
+		<noscript>JavaScript né’kű’ nem megy!</noscript>
+		<p><small id="number"></small></p>
+		<p id="question"></p>
+		<form id="form">
+			<p>
+				<input
+					id="answer-hour"
+					type="number"
+					min="0"
+					max="23"
+					step="1"
+				/>
+				:
+				<input
+					id="answer-minute"
+					type="number"
+					min="0"
+					max="59"
+					step="1"
+				/>
+				<button>Oké</button>
+			</p>
+		</form>
+		<script>
+			const quarters = ['', 'negyed', 'fél', 'háromnegyed', '']
+
+			const formElement = document.getElementById('form')
+			const numberElement = document.getElementById('number')
+			const questionElement = document.getElementById('question')
+			const answerHourElement = document.getElementById('answer-hour')
+			const answerMinuteElement = document.getElementById('answer-minute')
+
+			let questionNumber = 0
+
+			let answerHour = 0
+			let answerMinute = 0
+
+			function capitalize(s) {
+				return s[0].toLocaleUpperCase() + s.slice(1)
+			}
+
+			function getDisplayTime(hour, minute) {
+				if (hour === 0 && minute === 0) {
+					return 'éjfél'
+				} else if (hour === 12 && minute === 0) {
+					return 'dél'
+				}
+				let prefix
+				let showHour = true
+				if (hour < 1 && minute < 8) {
+					prefix = 'éjfél'
+					showHour = false
+				} else if (hour < 6) {
+					prefix = 'hajnali'
+				} else if (hour < 9) {
+					prefix = 'reggel'
+				} else if (hour < 11 || (hour === 11 && minute < 60 - 7)) {
+					prefix = 'délelőtt'
+				} else if (hour < 12 || (hour === 12 && minute < 8)) {
+					prefix = 'dél'
+					showHour = false
+				} else if (hour < 18) {
+					prefix = 'délután'
+				} else if (hour < 22) {
+					prefix = 'este'
+				} else if (hour < 23 || (hour === 23 && minute < 60 - 7)) {
+					prefix = 'éjjel'
+				} else {
+					prefix = 'éjfél'
+					showHour = false
+				}
+				const quarterPastMinutes = minute % 15
+				const isPast = quarterPastMinutes < 8
+				const displayQuarter = quarters[Math.round(minute / 15)]
+				const displayHour = showHour
+					? (hour % 12) + (minute > 7 ? 1 : 0)
+					: ''
+				const displayMinute = quarterPastMinutes
+					? isPast
+						? `múlt ${quarterPastMinutes} perccel`
+						: `lesz ${15 - quarterPastMinutes} perc múlva`
+					: ''
+				return [prefix, displayQuarter, displayHour, displayMinute]
+					.filter(Boolean)
+					.join(' ')
+			}
+
+			function next() {
+				formElement.reset()
+				questionNumber++
+				numberElement.innerText = `${questionNumber}.`
+
+				answerHour = Math.floor(Math.random() * 24)
+				answerMinute = Math.floor(Math.random() * 60)
+
+				const displaytime = getDisplayTime(answerHour, answerMinute)
+
+				questionElement.innerText = `${capitalize(displaytime)}?`
+				// console.log(answerHour, answerMinute)
+			}
+
+			document.getElementById('form').addEventListener('submit', e => {
+				e.preventDefault()
+				const givenHour = answerHourElement.valueAsNumber
+				const givenMinute = answerMinuteElement.valueAsNumber
+				if (givenHour === answerHour && givenMinute === answerMinute) {
+					alert('Helyes!')
+					next()
+				} else {
+					alert('Helytelen.')
+					formElement.reset()
+				}
+				answerHourElement.focus()
+			})
+
+			next()
+		</script>
+	</body>
+</html>
