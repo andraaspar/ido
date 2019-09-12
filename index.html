@@ -183,6 +183,15 @@
 			})
 
 			next()
+
+			navigator.serviceWorker
+				.register('service-worker.js')
+				.then(registration => {
+					console.log('Service worker registered.')
+				})
+				.catch(e => {
+					console.error(e)
+				})
 		</script>
 	</body>
 </html>
